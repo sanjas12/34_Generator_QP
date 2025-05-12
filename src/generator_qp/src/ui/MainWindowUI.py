@@ -13,6 +13,7 @@ from PyQt5.QtWidgets import (
     QLabel,
     QComboBox,
     QGridLayout,
+    QLineEdit,
     QMessageBox
 )
 from typing import Dict, Callable, Union
@@ -20,21 +21,6 @@ from typing import Dict, Callable, Union
 # Добавляем корневую папку проекта (src) в sys.path для возможности корректного импорта модулей
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
 from src.config.config import AxeName
-
-
-class CreateTable:
-    @staticmethod
-    def create_table() -> QTableWidget:
-        table = QTableWidget()
-        table.setSelectionBehavior(QAbstractItemView.SelectRows)
-        table.setColumnCount(2)
-        table.setColumnWidth(0, 1)
-        table.horizontalHeader().hide()
-        table.verticalHeader().hide()
-        table.setEditTriggers(QAbstractItemView.NoEditTriggers)
-        table.horizontalHeader().setStretchLastSection(True)
-        table.resizeRowsToContents()
-        return table
 
 
 class MainWindowUI(QMainWindow):
@@ -45,70 +31,32 @@ class MainWindowUI(QMainWindow):
     def setup_ui(self, version):
         self.setWindowTitle(version)
 
-        # Список сигналов:
-        self.gb_signals = MyGroupBox(
-            title=AxeName.LIST_SIGNALS.value,
-            name_first_button="Open files",
-            enable_second_btn=False,
-        )
+        # Добавляем новые элементы для параметров
+        self.label_T = QLabel("Постоянная времени (T):")
+        self.input_T = QLineEdit("0.05")
+        self.label_dt = QLabel("Шаг дискретизации (dt):")
+        self.input_dt = QLineEdit("0.01")
+        self.label_noise = QLabel("Уровень шума (%):")
+        self.input_noise = QLineEdit("1")
+        self.button_update = QPushButton("Генерировать QP график")
+        
+        # Создаем layout для новых элементов
+        params_layout = QGridLayout()
+        params_layout.addWidget(self.label_T, 0, 0)
+        params_layout.addWidget(self.input_T, 0, 1)
+        params_layout.addWidget(self.label_dt, 1, 0)
+        params_layout.addWidget(self.input_dt, 1, 1)
+        params_layout.addWidget(self.label_noise, 2, 0)
+        params_layout.addWidget(self.input_noise, 2, 1)
+        params_layout.addWidget(self.button_update, 3, 0, 1, 2)
 
-        # Основная ось:
-        self.gb_base_axe = MyGroupBox(title=AxeName.BASE_AXE.value)
-
-        # Вспомогательная ось:
-        self.gb_secondary_axe = MyGroupBox(title=AxeName.SECONDARY_AXE.value)
-
-        # Ось X
-        self.gb_x_axe = MyGroupBox(title=AxeName.X_AXE.value, enable_first_btn=False, enable_second_btn=False)
-
-        # первый горизонтальный слой
-        self.first_huge_lay = QHBoxLayout()
-        self.first_huge_lay.addWidget(self.gb_signals)
-        self.first_huge_lay.addWidget(self.gb_base_axe)
-        self.first_huge_lay.addWidget(self.gb_secondary_axe)
-        self.first_huge_lay.addWidget(self.gb_x_axe)
-
-        self.first_huge_GroupBox = QGroupBox()
-        self.first_huge_GroupBox.setLayout(self.first_huge_lay)
-
-        # второй горизонтальный слой
-        self.ql_info = QLabel()
-
-        self.second_lay = QHBoxLayout()
-        self.second_lay.addWidget(self.ql_info)
-
-        self.second_huge_GroupBox = QGroupBox()
-        self.second_huge_GroupBox.setLayout(self.second_lay)
-
-        # третий горизонтальный слой
-        self.number_raw_point = QLabel()
-        self.number_plot_point = QLabel()
-        list_dot = ["1", "10", "100", "1000", "10000"]
-        self.combobox_dot = QComboBox()
-        self.combobox_dot.addItems(list_dot)
-        self.combobox_dot.setCurrentIndex(1)
-        self.button_grath = QPushButton("Генерировать QP")
-        self.button_grath.setEnabled(False)
-
-        second_vertical_lay = QGridLayout()
-        second_vertical_lay.addWidget(QLabel("Количество исходных данных:"), 0, 0)
-        second_vertical_lay.addWidget(QLabel("Выборка, каждые:"), 1, 0)
-        second_vertical_lay.addWidget(QLabel("Количество отображаемых данных:"), 2, 0)
-        second_vertical_lay.addWidget(self.number_raw_point, 0, 1)
-        second_vertical_lay.addWidget(self.combobox_dot, 1, 1)
-        second_vertical_lay.addWidget(self.number_plot_point, 2, 1)
-        second_vertical_lay.addWidget(QLabel(), 2, 3)
-        second_vertical_lay.addWidget(QLabel(), 2, 4)
-        second_vertical_lay.addWidget(self.button_grath, 2, 5)
-
-        self.third_huge_GroupBox = QGroupBox()
-        self.third_huge_GroupBox.setLayout(second_vertical_lay)
+        params_group = QGroupBox("Параметры модели")
+        params_group.setLayout(params_layout)
 
         # main_layout
         main_layout = QVBoxLayout()
-        main_layout.addWidget(self.first_huge_GroupBox)
-        main_layout.addWidget(self.second_huge_GroupBox)
-        main_layout.addWidget(self.third_huge_GroupBox)
+        main_layout.addWidget(params_group)  # Добавляем новую группу с параметрами
+
 
         wid = QWidget(self)
         self.setCentralWidget(wid)
@@ -223,9 +171,9 @@ if __name__ == "__main__":
 
     # для тестирования главного окна
     main_window = MainWindowUI("Generator QP")
-    main_window.gb_base_axe.add_func_to_btn(main_window.gb_base_axe.btn_first, lambda: test("add to base axe"))
-    main_window.gb_base_axe.add_func_to_btn(main_window.gb_base_axe.btn_second, lambda: test("remove from base axe"))
-    main_window.gb_signals.add_func_to_btn(main_window.gb_signals.btn_first, lambda: test("add func to parser all sugnals"))
+    # main_window.gb_base_axe.add_func_to_btn(main_window.gb_base_axe.btn_first, lambda: test("add to base axe"))
+    # main_window.gb_base_axe.add_func_to_btn(main_window.gb_base_axe.btn_second, lambda: test("remove from base axe"))
+    # main_window.gb_signals.add_func_to_btn(main_window.gb_signals.btn_first, lambda: test("add func to parser all sugnals"))
     
     def test(text):
        print(text + "  some text")
