@@ -34,16 +34,16 @@ class ValveSimulator:
         
         return time_sim, real_position
 
-    def plot(self, time_sim, real_position):
+    def plot(self, time_sim, real_position, T, dt, noise_persent, count_N):
         plt.figure(figsize=(12, 6))
         plt.step(self.jump_times, self.reference_jump_values, 'r-', 
-                label='Задание (идеальное)', where='post')
+                label='Задание (идеальное) ГСМ', where='post')
         plt.plot(time_sim, real_position, 'b-', label='Реальное положение')
         plt.xlabel('Время (сек)')
         plt.ylabel('Положение клапана')
         plt.legend()
         plt.grid(True)
-        plt.title('Моделирование работы ГСМ с инерционностью')
+        plt.title(f'Моделирование работы ГСМ с инерционностью T: {T}, dt: {dt}, %{noise_persent}, кол-во данных {count_N}')
         plt.show()
 
 if __name__ == "__main__":
@@ -57,9 +57,10 @@ if __name__ == "__main__":
             T = float(window.input_T.text())
             dt = float(window.input_dt.text())
             noise_percent = float(window.input_noise.text())
+            count_N = int(window.input_N.text())
             
             time_sim, real_position = simulator.simulate(T, dt, noise_percent)
-            simulator.plot(time_sim, real_position)
+            simulator.plot(time_sim, real_position, T, dt, noise_percent, count_N)
             
         except ValueError as e:
             window.dialog_box(f"Ошибка ввода: {str(e)}")
