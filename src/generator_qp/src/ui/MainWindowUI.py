@@ -13,7 +13,7 @@ from PyQt5.QtWidgets import (
     QLabel,
     QGridLayout,
     QLineEdit,
-    QMessageBox
+    QMessageBox,
 )
 import matplotlib.pyplot as plt
 
@@ -45,7 +45,7 @@ class MainWindowUI(QMainWindow):
         self.button_save = QPushButton("Сохранить QP")
         self.button_save.setEnabled(False)
         self.button_save.clicked.connect(self.save_QP)
-        
+
         # Создаем layout для новых элементов
         params_layout = QGridLayout()
         params_layout.addWidget(self.count_N, 0, 0)
@@ -71,29 +71,48 @@ class MainWindowUI(QMainWindow):
         wid.setLayout(main_layout)
 
     def dialog_box(self, text: str) -> None:
-        QMessageBox.information(self, 'Gen_QP', text, QMessageBox.StandardButton.Ok)
+        QMessageBox.information(self, "Gen_QP", text, QMessageBox.StandardButton.Ok)
 
-    def generate_QP(self, time_sim, real_position, T, dt, noise_persent, reference_jump_values, jump_times=None):
-        
+    def generate_QP(
+        self,
+        time_sim,
+        real_position,
+        T,
+        dt,
+        noise_persent,
+        reference_jump_values,
+        jump_times=None,
+    ):
+
         times = jump_times if jump_times is not None else self.jump_times
-        
+
         plt.figure(figsize=(12, 6))
-        plt.step(self.jump_times, reference_jump_values, 'r-', label='Задание (идеальное) ГСМ', where='post')
-        plt.plot(time_sim, real_position, 'b-', label='Реальное положение')
-        plt.xlabel('Время (сек)')
-        plt.ylabel('Положение клапана')
+        plt.step(
+            self.jump_times,
+            reference_jump_values,
+            "r-",
+            label="Задание (идеальное) ГСМ",
+            where="post",
+        )
+        plt.plot(time_sim, real_position, "b-", label="Реальное положение")
+        plt.xlabel("Время (сек)")
+        plt.ylabel("Положение клапана")
         plt.legend()
         plt.grid(True)
-        plt.title(f'Моделирование работы ГСМ с инерционностью T: {T}, dt: {dt}, %{noise_persent}, кол-во данных: {len(time_sim)}')
+        plt.title(
+            f"Моделирование работы ГСМ с инерционностью T: {T}, dt: {dt}, %{noise_persent}, кол-во данных: {len(time_sim)}"
+        )
         plt.show()
 
     def save_QP(self, data):
         # Генерация больших данных
         # data = np.random.rand(1000000, 5)  # 1 млн строк × 5 столбцов
 
-        with gzip.open(f'ТГ81-{time.asctime}_imi.csv.gz', 'wt', newline='', encoding='utf-8') as f:
+        with gzip.open(
+            f"ТГ81-{time.asctime}_imi.csv.gz", "wt", newline="", encoding="utf-8"
+        ) as f:
             writer = csv.writer(f)
-            writer.writerow(['col1', 'col2', 'col3', 'col4', 'col5'])  # заголовки
+            writer.writerow(["col1", "col2", "col3", "col4", "col5"])  # заголовки
             writer.writerows(data)  # запись всех строк
 
 
