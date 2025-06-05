@@ -24,6 +24,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".
 class MainWindowUI(QMainWindow):
     def __init__(self, version: str):
         super().__init__()
+        self.jump_times = []
         self.setup_ui(version)
 
     def setup_ui(self, version):
@@ -72,7 +73,10 @@ class MainWindowUI(QMainWindow):
     def dialog_box(self, text: str) -> None:
         QMessageBox.information(self, 'Gen_QP', text, QMessageBox.StandardButton.Ok)
 
-    def generate_QP(self, time_sim, real_position, T, dt, noise_persent, reference_jump_values):
+    def generate_QP(self, time_sim, real_position, T, dt, noise_persent, reference_jump_values, jump_times=None):
+        
+        times = jump_times if jump_times is not None else self.jump_times
+        
         plt.figure(figsize=(12, 6))
         plt.step(self.jump_times, reference_jump_values, 'r-', label='Задание (идеальное) ГСМ', where='post')
         plt.plot(time_sim, real_position, 'b-', label='Реальное положение')
