@@ -72,9 +72,9 @@ class MainWindowUI(QMainWindow):
     def dialog_box(self, text: str) -> None:
         QMessageBox.information(self, 'Gen_QP', text, QMessageBox.StandardButton.Ok)
 
-    def generate_QP(self, time_sim, real_position, T, dt, noise_persent):
+    def generate_QP(self, time_sim, real_position, T, dt, noise_persent, reference_jump_values):
         plt.figure(figsize=(12, 6))
-        plt.step(self.jump_times, self.reference_jump_values, 'r-', label='Задание (идеальное) ГСМ', where='post')
+        plt.step(self.jump_times, reference_jump_values, 'r-', label='Задание (идеальное) ГСМ', where='post')
         plt.plot(time_sim, real_position, 'b-', label='Реальное положение')
         plt.xlabel('Время (сек)')
         plt.ylabel('Положение клапана')
