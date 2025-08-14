@@ -1,8 +1,5 @@
 import os
 import sys
-import time
-import gzip
-import csv
 from PyQt5.QtWidgets import (
     QGroupBox,
     QPushButton,
@@ -19,12 +16,14 @@ import matplotlib.pyplot as plt
 
 # Добавляем корневую папку проекта (src) в sys.path для возможности корректного импорта модулей
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
+from src.logic.Simulator import Simulator
 
 
 class MainWindowUI(QMainWindow):
     def __init__(self, version: str):
         super().__init__()
         self.jump_times = []
+        self.sim = None
         self.setup_ui(version)
 
     def setup_ui(self, version):
@@ -73,47 +72,55 @@ class MainWindowUI(QMainWindow):
     def dialog_box(self, text: str) -> None:
         QMessageBox.information(self, "Gen_QP", text, QMessageBox.StandardButton.Ok)
 
-    def generate_QP(
-        self,
-        time_sim,
-        real_position,
-        T,
-        dt,
-        noise_persent,
-        reference_jump_values,
-        jump_times=None,
-    ):
+    def generate_QP(self):
+        """Слот кнопки генерации QP: читает параметры, запускает симулятор и строит график."""
+        try:
+            count_N = int(self.input_N.text())
+            T = float(self.input_T.text())
+            dt = float(self.input_dt.text())
+            noise_percent = float(self.input_noise.text())
+        except ValueError:
+            self.dialog_box("Некорректные параметры. Проверьте ввод чисел.")
+            return
 
-        times = jump_times if jump_times is not None else self.jump_times
+        # Создаём и запускаем симуляцию
+        self.sim = Simulator(count_N, dt, noise_percent, T)
 
+        # Построение графика
         plt.figure(figsize=(12, 6))
         plt.step(
-            self.jump_times,
-            reference_jump_values,
+            self.sim.jump_times,
+            self.sim.reference_jump_values,
             "r-",
             label="Задание (идеальное) ГСМ",
             where="post",
         )
-        plt.plot(time_sim, real_position, "b-", label="Реальное положение")
+        plt.plot(self.sim.time_sim, self.sim.real_position, "b-", label="Реальное положение")
         plt.xlabel("Время (сек)")
         plt.ylabel("Положение клапана")
         plt.legend()
         plt.grid(True)
         plt.title(
-            f"Моделирование работы ГСМ с инерционностью T: {T}, dt: {dt}, %{noise_persent}, кол-во данных: {len(time_sim)}"
+            f"Моделирование работы ГСМ: T={self.sim.T}, dt={self.sim.dt}, шум={self.sim.noise_percent}%, точек={len(self.sim.time_sim)}"
         )
         plt.show()
 
-    def save_QP(self, data):
-        # Генерация больших данных
-        # data = np.random.rand(1000000, 5)  # 1 млн строк × 5 столбцов
+        # Разрешаем сохранение после успешной генерации
+        self.button_save.setEnabled(True)
 
-        with gzip.open(
-            f"ТГ81-{time.asctime}_imi.csv.gz", "wt", newline="", encoding="utf-8"
-        ) as f:
-            writer = csv.writer(f)
-            writer.writerow(["col1", "col2", "col3", "col4", "col5"])  # заголовки
-            writer.writerows(data)  # запись всех строк
+    def save_QP(self):
+        if self.sim is None:
+            self.dialog_box("Сначала сгенерируйте данные.")
+            return
+
+        # Сохраняем данные симуляции в CSV используя логику симулятора
+        try:
+            filepath = self.sim.save_to_csv()
+        except Exception as e:
+            self.dialog_box(f"Ошибка сохранения: {e}")
+            return
+
+        self.dialog_box(f"Файл сохранён: {filepath}")
 
 
 if __name__ == "__main__":
@@ -122,4 +129,4 @@ if __name__ == "__main__":
     main_window = MainWindowUI("Generator QP")
     main_window.show()
 
-    app.exec()
+    app.exec_()
