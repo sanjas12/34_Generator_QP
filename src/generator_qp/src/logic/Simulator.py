@@ -87,4 +87,4 @@ if __name__ == "__main__":
     # Test saving
     print(f"Saved to: {simulator.save_to_csv()}")
     
-    app.exec()
+    app.exec_()
