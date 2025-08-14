@@ -1,14 +1,11 @@
-# src\generator_qp\src\logic\Simulator.py
-import os
-import sys
 import numpy as np
 from PyQt5.QtWidgets import QApplication
 import csv
 from pathlib import Path
 
-# Добавляем корневую папку проекта (src) в sys.path для возможности корректного импорта модулей
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
-from src.config.config import OUT_DIR, OUT_FILE
+BASE_DIR = Path(__file__).parent.parent.absolute()
+OUT_DIR = Path(BASE_DIR, "QP_out")
+OUT_FILE = Path(OUT_DIR, 'out_merge.csv')
 
 class Simulator:
     def __init__(self, count_N, dt, noise_percent, time_constant):

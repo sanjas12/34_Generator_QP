@@ -14,9 +14,7 @@ from PyQt5.QtWidgets import (
 )
 import matplotlib.pyplot as plt
 
-# Добавляем корневую папку проекта (src) в sys.path для возможности корректного импорта модулей
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
-from src.logic.Simulator import Simulator
+from logic.Simulator import Simulator
 
 
 class MainWindowUI(QMainWindow):
