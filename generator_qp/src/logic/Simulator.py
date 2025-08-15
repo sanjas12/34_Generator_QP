@@ -29,18 +29,23 @@ class Simulator:
         # Временная ось
         self.time_sim = np.arange(0, self.count_N, self.dt)
         self.real_position = np.zeros_like(self.time_sim)
-        self.aim_position = 0
+        # Локальная переменная задания внутри метода вместо атрибута класса
+        aim_position = 0
+        # Траектория задания такой же длины, как и временная ось
+        self.aim_position = np.zeros_like(self.time_sim)
 
         # Моделирование
         ref_idx = 0
         for i, t in enumerate(self.time_sim):
             if ref_idx < len(self.jump_times) and t >= self.jump_times[ref_idx]:
-                self.aim_position = self.reference_jump_values[ref_idx]
+                aim_position = self.reference_jump_values[ref_idx]
                 ref_idx += 1
             if i > 0:
-                self.real_position[i] = self.real_position[i-1] + (self.dt / self.T) * (self.aim_position - self.real_position[i-1])
+                self.real_position[i] = self.real_position[i-1] + (self.dt / self.T) * (aim_position - self.real_position[i-1])
             
             self.real_position[i] += np.random.normal(0, noise_std)
+            # Сохраняем текущее значение задания для каждой точки времени
+            self.aim_position[i] = aim_position
 
         try:
             if self.dt <= 0:
@@ -63,13 +68,13 @@ class Simulator:
         # Ensure output directory exists
         OUT_DIR.mkdir(parents=True, exist_ok=True)
         
-        # Combine data into columns
-        data = np.column_stack((self.time_sim, self.real_position))
+        # Combine data into columns (все столбцы одинаковой длины)
+        data = np.column_stack((self.time_sim, self.aim_position, self.real_position))
         
         # Write to CSV
         with open(filename, 'w', newline='') as f:
             writer = csv.writer(f)
-            writer.writerow(['Time', 'Position'])  # header
+            writer.writerow(['Time', 'Aim Position', 'Real Position'])  # header
             writer.writerows(data)
         
         return str(filename)
