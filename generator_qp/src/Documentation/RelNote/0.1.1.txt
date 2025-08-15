@@ -1,0 +1,18 @@
+My Generator QP v0.1.1 Release Notes
+==========================
+
+* New features
+
+
+* Tweaks
+
+
+* Documentation
+- Экспорт: CSV содержит столбцы `Time`, `Aim Position`, `Real Position`.
+
+* Bugfixes
+- Исправлена ошибка сохранения CSV («all the input array dimensions except for the concatenation axis must match exactly…»), 
+    возникавшая из-за того, что `aim_position` был скаляром. Теперь используется вектор, и объединение столбцов выполняется корректно.
+- Гарантировано создание каталога `QP_out` перед записью.
+
+
