@@ -120,7 +120,7 @@ class Simulator:
         # Объединение данных
         data = np.column_stack((self.time_sim, self.aim_position, self.real_position))
 
-        COMMON_TIME = 'Время'
+        COMMON_TIME = 'дата/время'
         ANALYS_AIM = "Значение развертки. Положение ГСМ"
         GSM_A_CUR = "ГСМ-А.Текущее положение"
 
