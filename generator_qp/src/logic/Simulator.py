@@ -1,7 +1,8 @@
 import csv
 from pathlib import Path
 from typing import Optional, Tuple
-
+import gzip
+import shutil
 import numpy as np
 from PyQt5.QtWidgets import QApplication
 
@@ -9,6 +10,7 @@ from PyQt5.QtWidgets import QApplication
 BASE_DIR = Path(__file__).parent.parent.absolute()
 OUT_DIR = BASE_DIR / "QP_out"
 OUT_FILE = OUT_DIR / "out_merge.csv"
+OUT_FILE_GZ = OUT_DIR / "out_merge.csv"
 
 
 class Simulator:
@@ -127,7 +129,27 @@ class Simulator:
             writer.writerow([COMMON_TIME, ANALYS_AIM, GSM_A_CUR])
             writer.writerows(data)
 
+        # self.save_to_gz(OUT_FILE)
+
         return str(file_path)
+
+    def save_to_gz(self, filename: Optional[str] = None) -> str:
+        """Сохранение результатов симуляции в CSV файл."""
+        
+        if filename is None:
+            file_path = OUT_FILE_GZ
+        else:
+            file_path = OUT_DIR / filename
+        
+        OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+        gz_path = file_path.with_suffix(file_path.suffix + ".gz")
+
+        # Открываем исходный файл и пишем в gzip
+        with open(file_path, "rb") as f_in, gzip.open(gz_path, "wb") as f_out:
+            shutil.copyfileobj(f_in, f_out)
+
+        return str(gz_path)
 
 
 if __name__ == "__main__":

@@ -122,12 +122,13 @@ class MainWindowUI(QMainWindow):
 
         # Сохраняем данные симуляции в CSV используя логику симулятора
         try:
-            filepath = self.sim.save_to_csv()
+            filepath_csv = self.sim.save_to_csv()
+            filepath_gz = self.sim.save_to_gz()
         except Exception as e:
             self.dialog_box(f"Ошибка сохранения: {e}")
             return
 
-        self.dialog_box(f"Файл сохранён: {filepath}")
+        self.dialog_box(f"Файл CSV сохранён: {filepath_csv} \n Файл GZ сохранён: {filepath_gz}")
 
 
 if __name__ == "__main__":
