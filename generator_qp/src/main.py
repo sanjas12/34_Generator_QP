@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 import sys
 from PyQt5.QtWidgets import QApplication
@@ -11,7 +10,7 @@ from ui.MainWindowUI import MainWindowUI
 if __name__ == "__main__":
     app = QApplication(sys.argv)
 
-    main_window = MainWindowUI("Generator QP")
+    main_window = MainWindowUI("QP Generator")
     
     sim = Simulator(10, 0.05, 0.01, 1)
 

@@ -1,54 +1,64 @@
 #0.1.0
-import os
 import sys
-# import os
+import os
 from cx_Freeze import setup, Executable
 
-# Путь к директории Documentation внутри проекта
-documentation_path = os.path.join(os.path.dirname(__file__), 'generator_qp', 'src', 'Documentation')
+PROJECT_NAME = 'generator_qp'
 
-file = "setup.py"
-name = "Generator QP"
+# Получаем текущую версию из первой строки файла
+version = open(__file__, 'r', encoding='utf-8').readline().strip('#').strip()
 
-with open(file, 'r+', encoding='utf-8') as f:
-    version = f.readline().split('.')
-    # version[-1] = str(int(version[-1]) + 1)
-    version = '.'.join(version)
-    # f.seek(0)
-    # f.write(version)
+# Определяем базовые пути
+project_root = os.path.dirname(os.path.abspath(__file__))
+src_root = os.path.join(project_root, PROJECT_NAME, 'src')
 
-# для включения конкретных файлов в build
-# python_dir = os.path.dirname(sys.executable)
-# print(python_dir)
-# files = [("install.cmd"), os.path.join(python_dir, "vcruntime140.dll")]
-# files = [os.path.join(python_dir, "vcruntime140.dll")]
-# print(files)
+# Функция для умного включения файлов
+def get_smart_includes():
+    include_files = []
+    
+    # Добавляем каталог с релизными заметками, если он существует
+    doc_dir = os.path.join(project_root, PROJECT_NAME, 'Documentation')
+    relnote_dir = os.path.join(doc_dir, 'RelNote')
+    if os.path.isdir(relnote_dir):
+        include_files.append((relnote_dir, 'Documentation/RelNote'))
+    
+    return include_files
 
 
-# Dependencies are automatically detected, but it might need fine tuning.
+# Собираем файлы для включения в сборку
+include_files = get_smart_includes()
+
+# Настройки сборки
 build_exe_options = {
-    "path": sys.path + [os.path.join(os.path.dirname(__file__), "generator_qp", "src")],  # Добавляем путь к фактической 'src'
-    "excludes": ["tkinter", "unittest", "http",
-                "PyQT5.QtopenGL4",
-                "pydoc_data", "email",
-                "concurent", 
-                # "xml",
-                # "asyncio", "curses", "distutils", "html", "multiprocessing",
-                "sqlite3", "test", "urlib"],
-    "optimize": 1,      # c 2 exe не запускается
-    # "zip_include_packages": ["PyQt5", "matplotlib"],
-    # "include_files" : files
-    "include_files": [(documentation_path, 'Documentation/')]
+    "path": sys.path + [src_root],
+    "excludes": [
+        "matplotlib.tests", "matplotlib.testing", "pandas.tests", "scipy.tests",
+        "PyQt5.QtWebEngine", "PyQt5.QtNetwork", "PyQt5.QtSql",
+        "PyQt5.QtScript", "PyQt5.QtSvg", "PyQt5.QtTest",
+        "PyQt5.QtXml", "PyQt5.QtDesigner", "PyQt5.QtMultimedia",
+        "PyQt5.QtMultimediaWidgets", "PyQt5.QtOpenGL", "PyQt5.QtPrintSupport",
+        "PyQt5.QtQml",
+    ],
+    "optimize": 0, # c 2 - 477 Mb (3.11), c 1 или 0 - 175 Mb (3.11) 
+    "include_files": include_files,
 }
 
-# base="Win32GUI" should be used only for Windows GUI app. If comment this line, will appear console
-# base = "Win32GUI" if sys.platform == "win32" else None
 
 setup(
-    name=name,
-    version=version.strip('#'),
-    description="My Generator QP",
+    name="QP generator",
+    version=version,
+    description="QP generator",
     options={"build_exe": build_exe_options},
-    # executables=[Executable("main.py", target_name=name,  base=base)],
-    executables=[Executable("generator_qp/src/main.py", target_name=name)],
+    executables=[
+        Executable(
+            os.path.join(src_root, "main.py"),
+            target_name="QP generator.exe",
+            # base=None if sys.platform != "win32" else "Win32GUI",  # - командная строка если закоменчена то, она появляется
+        )
+    ],
 )
+
+
+
+
+
