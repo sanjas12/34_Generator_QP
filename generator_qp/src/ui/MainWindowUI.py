@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 import sys
 from PyQt5.QtWidgets import (
     QGroupBox,
@@ -9,11 +9,14 @@ from PyQt5.QtWidgets import (
     QWidget,
     QLabel,
     QGridLayout,
-    QLineEdit,
+    QDoubleSpinBox,
     QMessageBox,
+    QSpinBox,
 )
 import matplotlib.pyplot as plt
 
+PROJECT_ROOT = Path(__file__).parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
 from logic.Simulator import Simulator
 
 
@@ -29,13 +32,19 @@ class MainWindowUI(QMainWindow):
 
         # Добавляем новые элементы для параметров
         self.count_N = QLabel("Кол-во данных (N)*100:")
-        self.input_N = QLineEdit("10")
-        self.label_T = QLabel("Постоянная времени (T):")
-        self.input_T = QLineEdit("0.05")
+        self.input_N = QSpinBox()
+        self.input_N.setValue(10)
+        self.label_time_constant = QLabel("Постоянная времени (T):")
+        self.input_time_constant = QDoubleSpinBox()
+        self.input_time_constant.setValue(0.05)
         self.label_dt = QLabel("Шаг дискретизации (dt):")
-        self.input_dt = QLineEdit("0.01")
+        self.input_dt = QDoubleSpinBox()
+        self.input_dt.setSingleStep(0.01)
+        self.input_dt.setRange(0.01, 0.09)
+        self.input_dt.setValue(0.01)
         self.label_noise = QLabel("Уровень шума (%):")
-        self.input_noise = QLineEdit("1")
+        self.input_noise = QSpinBox()
+        self.input_noise.setValue(1)
         self.button_update = QPushButton("Генерировать QP и график")
         self.button_update.clicked.connect(self.generate_QP)
 
@@ -47,8 +56,8 @@ class MainWindowUI(QMainWindow):
         params_layout = QGridLayout()
         params_layout.addWidget(self.count_N, 0, 0)
         params_layout.addWidget(self.input_N, 0, 1)
-        params_layout.addWidget(self.label_T, 1, 0)
-        params_layout.addWidget(self.input_T, 1, 1)
+        params_layout.addWidget(self.label_time_constant, 1, 0)
+        params_layout.addWidget(self.input_time_constant, 1, 1)
         params_layout.addWidget(self.label_dt, 2, 0)
         params_layout.addWidget(self.input_dt, 2, 1)
         params_layout.addWidget(self.label_noise, 3, 0)
@@ -73,16 +82,16 @@ class MainWindowUI(QMainWindow):
     def generate_QP(self):
         """Слот кнопки генерации QP: читает параметры, запускает симулятор и строит график."""
         try:
-            count_N = int(self.input_N.text())
-            T = float(self.input_T.text())
-            dt = float(self.input_dt.text())
-            noise_percent = float(self.input_noise.text())
+            count_N = self.input_N.value()
+            time_constant = self.input_time_constant.value()
+            dt = self.input_dt.value()
+            noise_percent = self.input_noise.value()
         except ValueError:
             self.dialog_box("Некорректные параметры. Проверьте ввод чисел.")
             return
 
         # Создаём и запускаем симуляцию
-        self.sim = Simulator(count_N, dt, noise_percent, T)
+        self.sim = Simulator(count_N, dt, noise_percent, time_constant)
 
         # Построение графика
         plt.figure(figsize=(12, 6))
@@ -99,7 +108,7 @@ class MainWindowUI(QMainWindow):
         plt.legend()
         plt.grid(True)
         plt.title(
-            f"Моделирование работы ГСМ: T={self.sim.T}, dt={self.sim.dt}, шум={self.sim.noise_percent}%, точек={len(self.sim.time_sim)}"
+            f"Моделирование работы ГСМ: T={self.sim.time_constant}, dt={self.sim.dt}, шум={self.sim.noise_percent}%, точек={len(self.sim.time_sim)}"
         )
         plt.show()
 
