@@ -1,0 +1,14 @@
+My Generator QP v0.1.2 Release Notes
+==========================
+
+* New features
+    - Добавлено автоматическое сохранение в GZ
+
+* Tweaks
+    - Рефактор кода
+    - Переход на QSpinbox и DoubleQSpinbox
+
+* Documentation
+    - Экспорт: CSV и GZ файлы содержат столбцы: `Время`, `Значение развертки. Положение ГСМ`, `Real Position`.
+
+* Bugfixes
