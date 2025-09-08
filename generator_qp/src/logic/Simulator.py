@@ -124,7 +124,7 @@ class Simulator:
         ANALYS_AIM = "Значение развертки. Положение ГСМ"
         GSM_A_CUR = "ГСМ-А.Текущее положение"
 
-        with open(file_path, "w", newline="") as f:
+        with open(file_path, "w", newline="", encoding="UTF-8") as f:
             writer = csv.writer(f, delimiter=';')
             writer.writerow([COMMON_TIME, ANALYS_AIM, GSM_A_CUR])
             writer.writerows(data)
