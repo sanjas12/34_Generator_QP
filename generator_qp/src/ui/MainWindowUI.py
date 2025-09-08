@@ -112,7 +112,8 @@ class MainWindowUI(QMainWindow):
         plt.legend()
         plt.grid(True)
         plt.title(
-            f"Моделирование работы ГСМ: T={self.sim.time_constant}, dt={self.sim.dt}, шум={self.sim.noise_percent}%, точек={len(self.sim.time_sim)}"
+            f"Моделирование работы ГСМ: T={self.sim.time_constant:0.2f}, "
+            f"dt={self.sim.dt:0.2f}, шум={self.sim.noise_percent:0.2f}%, точек={len(self.sim.time_sim)}"
         )
         plt.show()
 
