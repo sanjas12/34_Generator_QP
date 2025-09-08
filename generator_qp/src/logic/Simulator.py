@@ -1,4 +1,3 @@
-import csv
 from pathlib import Path
 from typing import Optional, Tuple
 import gzip
@@ -124,11 +123,9 @@ class Simulator:
         ANALYS_AIM = "Значение развертки. Положение ГСМ"
         GSM_A_CUR = "ГСМ-А.Текущее положение"
 
-        with open(file_path, "w", newline="", encoding="UTF-8") as f:
-            writer = csv.writer(f, delimiter=';')
-            writer.writerow([COMMON_TIME, ANALYS_AIM, GSM_A_CUR])
-            writer.writerows(data)
-
+        np.savetxt(file_path, data, delimiter=';', fmt='%.3f', encoding="UTF-8",
+           header=f"{COMMON_TIME};{ANALYS_AIM};{GSM_A_CUR}", comments='')
+        
         # self.save_to_gz(OUT_FILE)
 
         return str(file_path)
